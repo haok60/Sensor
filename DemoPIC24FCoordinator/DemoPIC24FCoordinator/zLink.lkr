@@ -1,0 +1,85 @@
+//*********************************************************************
+//*                                                                    
+//* Software License Agreement                                         
+//*                                                                    
+//* Copyright © 2004-2007 Microchip Technology Inc.  All rights reserved.
+//*
+//* Microchip licenses to you the right to use, copy and distribute Software 
+//* only when embedded on a Microchip microcontroller or digital signal 
+//* controller and used with a Microchip radio frequency transceiver, which 
+//* are integrated into your product or third party product (pursuant to the 
+//* sublicense terms in the accompanying license agreement).  You may NOT 
+//* modify or create derivative works of the Software.  
+//*
+//* If you intend to use this Software in the development of a product for 
+//* sale, you must be a member of the ZigBee Alliance.  For more information, 
+//* go to www.zigbee.org.
+//*
+//* You should refer to the license agreement accompanying this Software for 
+//* additional information regarding your rights and obligations.
+//*
+//* SOFTWARE AND DOCUMENTATION ARE PROVIDED “AS IS” WITHOUT WARRANTY OF ANY 
+//* KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION, ANY WARRANTY 
+//* OF MERCHANTABILITY, TITLE, NON-INFRINGEMENT AND FITNESS FOR A PARTICULAR 
+//* PURPOSE. IN NO EVENT SHALL MICROCHIP OR ITS LICENSORS BE LIABLE OR OBLIGATED 
+//* UNDER CONTRACT, NEGLIGENCE, STRICT LIABILITY, CONTRIBUTION, BREACH OF 
+//* WARRANTY, OR OTHER LEGAL EQUITABLE THEORY ANY DIRECT OR INDIRECT DAMAGES OR 
+//* EXPENSES INCLUDING BUT NOT LIMITED TO ANY INCIDENTAL, SPECIAL, INDIRECT, 
+//* PUNITIVE OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA, COST OF 
+//* PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY 
+//* THIRD PARTIES (INCLUDING BUT NOT LIMITED TO ANY DEFENSE THEREOF), OR OTHER 
+//* SIMILAR COSTS.
+//*                                  
+//*                                                                    
+//*********************************************************************
+
+// Created by ZENA(TM) Version 1.3.23.0, 1/10/2007, 13:22:15
+
+// This linker script has been created for use with a
+// PIC18F4620, ZigBee Coordinator project, MPLAB ICD 2 build
+
+// NOTE: If this file must be modified for a different device, be sure to
+//       correct the RAM and ROM sizes appropriately.  If it becomes necessary
+//       to reduce HEAP size, regenerate the files using ZENA so the heap size
+//       is changed in all necessary locations.
+
+LIBPATH .
+
+FILES c018i.o
+FILES clib.lib
+FILES p18f4620.lib
+
+CODEPAGE   NAME=vectors    START=0x000000       END=0x000029       PROTECTED
+CODEPAGE   NAME=macaddress START=0x00002A       END=0x000031       PROTECTED  
+CODEPAGE   NAME=page       START=0x000032       END=0x00FD7F                  
+CODEPAGE   NAME=debug      START=0x00FD80       END=0x00FFFF       PROTECTED
+CODEPAGE   NAME=idlocs     START=0x200000       END=0x200007       PROTECTED
+CODEPAGE   NAME=config     START=0x300000       END=0x30000D       PROTECTED
+CODEPAGE   NAME=devid      START=0x3FFFFE       END=0x3FFFFF       PROTECTED
+CODEPAGE   NAME=eedata     START=0xF00000       END=0xF003FF       PROTECTED
+
+ACCESSBANK NAME=accessram  START=0x0000         END=0x007F
+DATABANK   NAME=gpr0       START=0x0080         END=0x00FF
+
+// Reserve memory for the heap.
+DATABANK   NAME=HEAP       START=0x0100         END=0x07FF      PROTECTED
+
+// Reserve space for the stack.  NOTE - if the stack is over one bank,
+// the project memory model must be adjusted.
+DATABANK   NAME=gpr9      START=0x0800         END=0x09FF		PROTECTED	
+
+// Reserve memory for holding received messages.
+DATABANK   NAME=RX_BUFFER  START=0x0A00         END=0x0AFF     PROTECTED
+
+DATABANK   NAME=gpr11      START=0x0B00         END=0x0BFF
+DATABANK   NAME=gpr12      START=0x0C00         END=0x0CFF
+DATABANK   NAME=gpr13      START=0x0D00         END=0x0DFF
+DATABANK   NAME=gpr14      START=0x0E00         END=0x0EF3
+DATABANK   NAME=dbgspr     START=0x0EF4         END=0x0EFF         PROTECTED
+DATABANK   NAME=gpr15      START=0x0F00         END=0x0F7F
+ACCESSBANK NAME=accesssfr  START=0x0F80         END=0x0FFF         PROTECTED
+
+SECTION    NAME=CONFIG     ROM=config
+
+// NOTE - if the stack is over one bank, the project memory model must be adjusted.
+STACK SIZE=0x01ff RAM=gpr9

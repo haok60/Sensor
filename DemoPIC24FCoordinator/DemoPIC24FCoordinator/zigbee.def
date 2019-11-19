@@ -1,0 +1,289 @@
+// *****************************************************************************
+//
+//  Software License Agreement
+//
+//  Copyright (c) 2004-2008 Microchip Technology Inc.
+//  All rights reserved.
+//
+//  Microchip licenses to you the right to use, copy and distribute Software
+//  only when embedded on a Microchip microcontroller or digital signal
+//  controller and used with a Microchip radio frequency transceiver, which
+//  are integrated into your product or third party product (pursuant to the
+//  sublicense terms in the accompanying license agreement).  You may NOT
+//  modify or create derivative works of the Software.
+//
+//  If you intend to use this Software in the development of a product for
+//  sale, you must be a member of the ZigBee Alliance.  For more
+//  information, go to www.zigbee.org.
+//
+//  You should refer to the license agreement accompanying this Software for
+//  additional information regarding your rights and obligations.
+//
+//  SOFTWARE AND DOCUMENTATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
+//  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION, ANY
+//  WARRANTY OF MERCHANTABILITY, TITLE, NON-INFRINGEMENT AND FITNESS FOR A
+//  PARTICULAR PURPOSE. IN NO EVENT SHALL MICROCHIP OR ITS LICENSORS BE
+//  LIABLE OR OBLIGATED UNDER CONTRACT, NEGLIGENCE, STRICT LIABILITY,
+//  CONTRIBUTION, BREACH OF WARRANTY, OR OTHER LEGAL EQUITABLE THEORY ANY
+//  DIRECT OR INDIRECT DAMAGES OR EXPENSES INCLUDING BUT NOT LIMITED TO ANY
+//  INCIDENTAL, SPECIAL, INDIRECT, PUNITIVE OR CONSEQUENTIAL DAMAGES, LOST
+//  PROFITS OR LOST DATA, COST OF PROCUREMENT OF SUBSTITUTE GOODS,
+//  TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT
+//  LIMITED TO ANY DEFENSE THEREOF), OR OTHER SIMILAR COSTS.
+//
+//  09/11/12
+//
+// *****************************************************************************
+
+// Created by ZENA(TM) Version 3.0.0.0, 9/11/2012, 9:03:25
+
+// This definition file was created for use with the following:
+//     Protocol:            ZigBee 2006
+//     Processor:           PIC24FJ128GA306
+//     Transceiver:         Microchip MRF24J40
+//     ZigBee Device:       Coordinator
+//     Nonvolatile Storage: 25LC256
+
+// ***** Any changes should be made by regenerating the file with ZENA(TM) *****
+
+#ifndef _ZIGBEE_DEF
+#define _ZIGBEE_DEF
+
+/************ Implementation area. You can only choose one of these ************/
+#define CHAMSOCLAN
+//#define CANHBAOCHAYRUNG
+//#define THEODOIDONGVAT
+/*******************************************************************************/
+
+/******** every TIMER_UNIT_VALUE (s), timer TMR2-3 (32bits)  interrupt**********/
+#if defined(CHAMSOCLAN) || defined(CANHBAOCHAYRUNG)
+    #define TIMER_UNIT_VALUE    5
+    #define FIVE_SECONDS        1
+#endif
+#if defined(THEODOIDONGVAT)
+    #define TIMER_UNIT_VALUE    2
+    #define FIVE_SECONDS        1
+#endif
+/*******************************************************************************/
+
+/********************************* Option user *********************************/
+/*Uncomment this following if you want Coordinator to be an actor. In WSAN project,
+ *we have used a device to be a CONTROL_PUMP (ACTOR1) in the CHAMSOCLAN area.
+ *We also use another device to be a WARNING_FIRE (ACTOR2) in the
+ *CANHBAOCHAYRUNG area.
+ */
+#if defined(CHAMSOCLAN)
+    #define I_AM_ACTOR1
+#endif
+
+#if defined(CANHBAOCHAYRUNG)
+    #define I_AM_ACTOR2
+#endif
+
+/*if you want Coordinator to be an actor, you shouldn't define USE_DEBUG. When you
+ *intend setup coordinator for Gateway function, change USE_DEBUG to ROUTER_EMB
+ *in all file of the project.
+ */
+//#define USE_DEBUG
+
+/* Uncomment the follow definition to use led for debugging */
+#define USE_LED
+
+/* Don't use warning low power if device is ACTOR1 or ACTOR2 */
+#if !defined(I_AM_ACTOR1) && !defined(I_AM_ACTOR2)
+    #define USE_WARNING_LOW_POWER
+#endif
+
+/* Uncomment this following if you want to use trace node funnction */
+//#define TRACE_ROUTE_SUPPORT
+
+/*For select routing protocol mode:
+ *Original AOVD
+ *AODV with Sleep/Wake mode
+ *AODV with LQI based Power Control
+ *By: Hoang Anh Son - K53
+ */
+#define AODV_ORIGINAL
+//#define AODV_SLEEP_WAKE
+//#define AODV_POWER_CONTROL
+/*******************************************************************************/
+
+/**** These definition is strongly recommended protecting. You needn't care ****/
+#ifdef CHAMSOCLAN
+    #ifdef I_AM_ACTOR1
+        #define USE_CONTROL_PUMP
+    #else
+        #define USE_SHT10
+    #endif
+
+    #define NetworkID   0x1AAA
+#endif
+
+#ifdef CANHBAOCHAYRUNG
+    #ifdef I_AM_ACTOR2
+        #define USE_CONTROL_ALARM
+    #else
+        #define USE_SHT10
+        //#define USE_MQ6_V1
+        #define USE_MQ6_V2
+        #define STEP_OF_THRES 25
+    #endif
+
+    #define NetworkID   0x1AAA
+#endif
+
+#ifdef THEODOIDONGVAT
+    //#define USE_MINI_RADAR
+    //#define USE_PIR
+
+    #define NetworkID   0x1AAB
+#endif
+
+//Address of Router-EMB (Gateway)
+#define RouterEmboardAddrMSB 0x00
+#define RouterEmboardAddrLSB 0x01
+
+//time unit
+#define ONE_MINUTE_VALUE (60/TIMER_UNIT_VALUE)
+#define TIMER_UNIT  (TIMER_UNIT_VALUE * ONE_SECOND)
+
+//Frequency ocsilator and baudrate of UART modules
+#define CLOCK_FREQ 8000000ul
+
+//Baudrate of UARTx module
+#define BAUD_RATE 19200ul
+#define BAUD_RATE_UART1 19200ul
+#ifdef USE_MINI_RADAR
+	#define BAUD_RATE_UART1 19200ul
+#endif
+/*******************************************************************************/
+
+#define MAX_HEAP_SIZE 2048
+
+// SPI and Non-volatile Storage Information
+
+#define USE_EXTERNAL_NVM
+#define EXTERNAL_NVM_BYTES 32768
+#define EEPROM_PAGE_SIZE 64
+#define EEPROM_nCS LATDbits.LATD11
+#define EEPROM_nCS_TRIS TRISDbits.TRISD11
+// RF is on SPI1, EE is on SPI2
+#define RF_SSPIF_BIT  IFS0bits.SPI1IF
+#define RF_SSPBUF_REG SPI1BUF
+#define EE_SSPIF_BIT  IFS2bits.SPI2IF
+#define EE_SSPBUF_REG SPI2BUF
+
+/* Do not enable this while using the MRF24J40MA
+ * transceiver.  IT WILL DAMAGE THE DEVICE.
+ * Use only with the MRF24J40MB device
+ */
+#define USE_EXT_PA_LNA
+
+// Device MAC Address
+#if defined(CHAMSOCLAN)
+#define MAC_LONG_ADDR_BYTE7 0x00
+#define MAC_LONG_ADDR_BYTE6 0x04
+#define MAC_LONG_ADDR_BYTE5 0xA3
+#define MAC_LONG_ADDR_BYTE4 0x00
+#define MAC_LONG_ADDR_BYTE3 0x01
+#define MAC_LONG_ADDR_BYTE2 0x11
+#define MAC_LONG_ADDR_BYTE1 0x11
+#define MAC_LONG_ADDR_BYTE0 0x00
+#endif
+
+#if defined(THEODOIDONGVAT)
+#define MAC_LONG_ADDR_BYTE7 0x00
+#define MAC_LONG_ADDR_BYTE6 0x04
+#define MAC_LONG_ADDR_BYTE5 0xA3
+#define MAC_LONG_ADDR_BYTE4 0x00
+#define MAC_LONG_ADDR_BYTE3 0x01
+#define MAC_LONG_ADDR_BYTE2 0x00
+#define MAC_LONG_ADDR_BYTE1 0x00
+#define MAC_LONG_ADDR_BYTE0 0x60
+#endif
+
+#if defined(CANHBAOCHAYRUNG)
+#define MAC_LONG_ADDR_BYTE7 0x00
+#define MAC_LONG_ADDR_BYTE6 0x04
+#define MAC_LONG_ADDR_BYTE5 0xA3
+#define MAC_LONG_ADDR_BYTE4 0x00
+#define MAC_LONG_ADDR_BYTE3 0x01
+#define MAC_LONG_ADDR_BYTE2 0x00
+#define MAC_LONG_ADDR_BYTE1 0x00
+#define MAC_LONG_ADDR_BYTE0 0xB1
+#endif
+
+// ZigBee Device Information
+
+#define I_AM_COORDINATOR
+#define I_AM_FFD
+#define I_SUPPORT_ROUTING
+//#define I_SUPPORT_SECURITY
+#define MY_CAPABILITY_INFO 0x8E
+
+// ZDO Configuration
+
+#define SUPPORT_END_DEVICE_BINDING
+#define CONFIG_ENDDEV_BIND_TIMEOUT (ONE_SECOND * 5)
+
+// APS Configuration
+
+#define MAX_APL_FRAMES 9
+#define MAX_APS_ACK_FRAMES 8
+#define MAX_APS_ADDRESSES 8
+#define I_SUPPORT_BINDINGS
+#define NUM_BUFFERED_INDIRECT_MESSAGES 8
+#define MAX_BINDINGS 15
+#define MAX_DUPLICATE_TABLE 21
+#define DUPLICATE_TABLE_EXPIRATION 5
+#define I_SUPPORT_GROUP_ADDRESSING
+#define MAX_GROUP 8
+#define MAX_GROUP_END_POINT 8
+#define MAX_GROUP_RECORD_BUFFER 5
+
+// NWK Configuration
+
+#define MAX_NEIGHBORS 24
+#define NUM_BUFFERED_BROADCAST_MESSAGES 7
+#define ROUTE_DISCOVERY_TABLE_SIZE 4
+#define ROUTING_TABLE_SIZE 16
+#define RESERVED_ROUTING_TABLE_ENTRIES 8
+#define NUM_BUFFERED_ROUTING_MESSAGES 8
+
+// MAC Configuration
+
+#define MAX_ENERGY_THRESHOLD 250
+#define MAC_PIB_macTransactionPersistenceTime 479999    // 7.68 seconds
+#define RX_BUFFER_SIZE 256
+#define RX_BUFFER_LOCATION 0x400
+#define MAC_PIB_macBeaconOrder 15
+#define MAC_PIB_macSuperframeOrder 15
+#define MAC_PIB_macBattLifeExt FALSE
+
+// Transceiver Information
+
+#define RF_CHIP MRF24J40
+#define MAC_PIB_macAckWaitDuration (54+3)
+#define RF_INT_PIN PORTGbits.RG6
+#define RFIF IFS1bits.INT1IF
+#define RFIE IEC1bits.INT1IE
+#define PHY_CS LATEbits.LATE7
+#define PHY_CS_TRIS TRISEbits.TRISE7
+#define PHY_RESETn LATEbits.LATE5
+#define PHY_RESETn_TRIS TRISEbits.TRISE5
+#define PHY_WAKE LATEbits.LATE6
+#define PHY_WAKE_TRIS TRISEbits.TRISE6
+#define PA_LEVEL 0x00  // -0.00 dBm
+#define FREQUENCY_BAND FB_2400GHz
+#define ALLOWED_CHANNELS 0x06108000
+//#define ALLOWED_CHANNELS 0x01EF7800
+
+// Profile and Endpoint Configuration
+
+#define NUM_USER_ENDPOINTS 1
+#define WSAN_Endpoint 240
+#define MY_MAX_INPUT_CLUSTERS 5
+#define MY_MAX_OUTPUT_CLUSTERS 5
+#include "..\ZigBeeStack\zTest.h"
+
+#endif
