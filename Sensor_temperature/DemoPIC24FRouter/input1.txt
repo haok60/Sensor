@@ -1,0 +1,5 @@
+wait 10 ms
+'C'
+
+wait 100 ms 
+'D'
