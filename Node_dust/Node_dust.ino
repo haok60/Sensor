@@ -19,16 +19,16 @@ void setup() {
   pinMode(ledPower,OUTPUT);
   pinMode(A0,INPUT);
   digitalWrite(ledPower,HIGH);
-  String join= "#LJ:"+String(mac,DEC);
-  Serial.println(join);
+  //String join= "#LJ:"+String(mac,DEC);
+  //Serial.println(join);
 }
 void loop() {
   current_time =millis();
   dustDensity = readDust();
-  if (current_time-previous_time>=6000)//1p
+  if (current_time-previous_time>=5000)//5s
   {
     String dustDensity1 = "#LB:" +String(mac,DEC)+ String(dustDensity,HEX);
-    Serial.println(dustDensity);
+    Serial.println(dustDensity1);
     previous_time = current_time;
   }
 }
@@ -74,10 +74,7 @@ int readDust()
   delayMicroseconds(deltaTime); //Delay 0.02ms
   digitalWrite(ledPower,HIGH); // Tắt LED
   delayMicroseconds(sleepTime);//Delay 9.68ms
-  //Serial.println(voMeasured);
-   // Serial.println(voMeasured);
   //Vo = (5*voMeasured)/1024;
-  //Serial.println(Vo);
   //dustDensity1 = (Vo - Voc)*0.2;
   return voMeasured;
 }
