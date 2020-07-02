@@ -1,3 +1,5 @@
+#include <SHT1x.h>
+
 #include <SoftwareSerial.h>
 #include "Arduino.h"
 SoftwareSerial mySerial(8,9); //TX, RX
@@ -11,12 +13,19 @@ int dustDensity;
 int voMeasured;
 int current_time = 0;
 int previous_time = 0;
-int mac=7;
+#define dataPin  A3
+#define clockPin A2
+float temp_c;
+float humidity;
+int temp_s,humi_s;
+int mac=5;
+SHT1x sht1x(dataPin, clockPin);
 //float Vo;
 void serialEventRun(void) {
-  if (Serial.available()) serialEvent();
+  if (mySerial.available()) serialEvent();
 }
 void setup() {
+  Serial.begin(9600);
   // put your setup code here, to run once:
   pinMode(2,OUTPUT);
   pinMode(3,OUTPUT);
@@ -33,17 +42,24 @@ void setup() {
 void loop() {
   current_time =millis();
   dustDensity = readDust();
-  if (current_time-previous_time>=5000)//5s
+  readTandH();
+  //Serial.println(temp_c);
+  //Serial.println(hum_s);
+  if (current_time-previous_time>=10000)//5s
   {
     String dustDensity1 = "#LB:0" +String(mac,DEC)+ String(dustDensity,HEX);
     mySerial.println(dustDensity1);
+    delay(4000);
+    readTandH();
+    String TempHum = "#LT:0" +String(mac,DEC)+ String(temp_s,DEC)+String(humi_s,DEC);
+    mySerial.println(TempHum);
     previous_time = current_time;
   }
 }
 void serialEvent(){
   
-  while(Serial.available()>0){
-    cmd=Serial.readString();
+  while(mySerial.available()>0){
+    cmd=mySerial.readString();
   }
   sendData(cmd);
 }
@@ -66,7 +82,7 @@ void sendData(String cmd)
     //dustDensity = readDust();
     case 5:
       String dustDensity1 = "#LR:" +String(mac,DEC)+ String(dustDensity,HEX);
-      Serial.println(dustDensity1);
+      mySerial.println(dustDensity1);
       break;
     default:
     break;
@@ -85,4 +101,12 @@ int readDust()
   //Vo = (5*voMeasured)/1024;
   //dustDensity1 = (Vo - Voc)*0.2;
   return voMeasured;
+}
+void readTandH()
+{
+  //temp_c = sht1x.readTemperatureC();
+  temp_c = sht1x.readTemperatureC();
+  humidity = sht1x.readHumidity();
+  temp_s = temp_c*100;
+  humi_s = humidity*100;
 }
